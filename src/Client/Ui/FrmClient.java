@@ -4,7 +4,9 @@
  */
 package Client.Ui;
 
+import java.io.File;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JTextField;
 
@@ -13,6 +15,9 @@ import javax.swing.JTextField;
  * @author emerson
  */
 public class FrmClient extends javax.swing.JFrame {
+
+    private String fileToSend;
+    public static final String ATTACH = "Attach";
 
     /**
      * Creates new form FrmClient
@@ -33,21 +38,23 @@ public class FrmClient extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         lstChat = new javax.swing.JList<>();
         btnConnect = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        txtIdClient = new javax.swing.JTextField();
+        txtUser = new javax.swing.JTextField();
         txtMessage = new javax.swing.JTextField();
         btnClose = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
-        jButton4 = new javax.swing.JButton();
+        btnAttach = new javax.swing.JButton();
+        btnSend = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        txtServerPort = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        txtServer = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jScrollPane1.setViewportView(lstChat);
 
         btnConnect.setText("Connect");
-
-        jButton3.setText("Send");
 
         jLabel1.setFont(new java.awt.Font("Noto Sans", 1, 24)); // NOI18N
         jLabel1.setText("Client");
@@ -57,7 +64,17 @@ public class FrmClient extends javax.swing.JFrame {
 
         jLabel2.setText("User : ");
 
-        jButton4.setText("Att");
+        btnAttach.setText("Attach");
+
+        btnSend.setText("Send");
+
+        jLabel3.setText("Server:");
+
+        txtServerPort.setText("8081");
+
+        jLabel4.setText(":");
+
+        txtServer.setText("localhost");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -73,16 +90,24 @@ public class FrmClient extends javax.swing.JFrame {
                         .addComponent(btnClose))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtUser, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(txtIdClient, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 182, Short.MAX_VALUE)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtServer, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtServerPort)
+                        .addGap(18, 18, 18)
                         .addComponent(btnConnect))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(txtMessage)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(txtMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnSend, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnAttach, javax.swing.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -94,16 +119,20 @@ public class FrmClient extends javax.swing.JFrame {
                     .addComponent(btnClose, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtIdClient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtUser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnConnect)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3)
+                    .addComponent(txtServerPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4)
+                    .addComponent(txtServer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
                     .addComponent(txtMessage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4))
+                    .addComponent(btnAttach)
+                    .addComponent(btnSend))
                 .addContainerGap(19, Short.MAX_VALUE))
         );
 
@@ -122,15 +151,59 @@ public class FrmClient extends javax.swing.JFrame {
         return btnConnect;
     }
 
-    public JTextField getTxtIdClient() {
-        return txtIdClient;
+    public JTextField getTxtUser() {
+        return txtUser;
     }
 
     public JButton getBtnClose() {
         return btnClose;
-    }    
+    }
+
+    public JButton getBtnAttach() {
+        return btnAttach;
+    }
+
+    public JButton getBtnSend() {
+        return btnSend;
+    }
+
+    public String getFileToSend() {
+        return fileToSend;
+    }
+
+    public JTextField getTxtServer() {
+        return txtServer;
+    }
+
+    public JTextField getTxtServerPort() {
+        return txtServerPort;
+    }
+
     
-   
+    public void showFileChooser() {
+        JFileChooser fileChooser = new JFileChooser();
+
+        // Mostrar el diálogo de selección de archivos
+        int result = fileChooser.showOpenDialog(this);
+
+        // Procesar el archivo seleccionado
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            appearanceToSendFile(selectedFile);
+        }
+    }
+
+    public void appearanceToSendFile(File file) {
+        fileToSend = file.getAbsolutePath();
+        btnAttach.setText(file.getName());
+        btnAttach.setEnabled(false);
+    }
+
+    public void appearanceToSendMessage() {
+        btnAttach.setText(ATTACH);
+        btnAttach.setEnabled(true);
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -167,15 +240,19 @@ public class FrmClient extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAttach;
     private javax.swing.JButton btnClose;
     private javax.swing.JButton btnConnect;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
+    private javax.swing.JButton btnSend;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JList<String> lstChat;
-    private javax.swing.JTextField txtIdClient;
     private javax.swing.JTextField txtMessage;
+    private javax.swing.JTextField txtServer;
+    private javax.swing.JTextField txtServerPort;
+    private javax.swing.JTextField txtUser;
     // End of variables declaration//GEN-END:variables
 }

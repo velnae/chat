@@ -5,7 +5,7 @@
 package Client;
 
 import Client.Ui.FrmClient;
-import Server.Server;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.DefaultListModel;
@@ -15,71 +15,120 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 /**
- *
  * @author emerson
  */
 public class MainClient {
 
     private JList<String> lstChat;
-    private DefaultListModel<String> listModel;
+    private DefaultListModel<String> lsmChat;
     private FrmClient frmClient;
     private Client client;
     private JTextField txtMessage;
-    private JTextField txtidClient;
+    private JTextField txtUser;
+    private JTextField txtServer;
+    private JTextField txtServerPort;
 
     private JButton btnConnect;
     private JButton btnClose;
+    private JButton btnAttach;
+    private JButton btnSend;
 
     public MainClient() {
         frmClient = new FrmClient();
         frmClient.setVisible(true);
 
-        listModel = new DefaultListModel<>();
+        initComponents();
+
+        initEvents();
+    }
+
+    public MainClient(String user) {
+        frmClient = new FrmClient();
+        frmClient.setVisible(true);
+
+        initComponents();
+
+        initEvents();
+
+        txtUser.setText(user);
+    }
+
+    private void initEvents() {
+        btnConnect.addActionListener(e -> connectAction());
+
+        btnClose.addActionListener(e -> closeAction());
+
+        txtMessage.addActionListener(e -> messageAction());
+
+        btnAttach.addActionListener(e -> frmClient.showFileChooser());
+
+        btnSend.addActionListener(e -> sendAction());
+    }
+
+
+    public void connectAction() {
+
+        String user = txtUser.getText();
+        String server = txtServer.getText();
+        int serverPort = Integer.parseInt(txtServerPort.getText());
+
+
+        if (user.isEmpty() || server.isEmpty() || serverPort < 1) {
+            JOptionPane.showMessageDialog(null, "User, server and port is required", "Warning", JOptionPane.WARNING_MESSAGE);
+        } else {
+            client = new Client(user, server, serverPort, lsmChat);
+            setEditableConnectionComponents(false);
+        }
+    }
+
+    private void messageAction() {
+        String inputText = txtMessage.getText();
+        if (!inputText.isEmpty()) {
+            client.sendMessage(inputText);
+            inputText = "";
+            txtMessage.setText(inputText);
+        }
+    }
+
+    private void closeAction() {
+        lsmChat.clear();
+        client.stop();
+
+        setEditableConnectionComponents(true);
+    }
+
+    private void sendAction(){
+        if (btnAttach.getText().equals(FrmClient.ATTACH)) {
+            messageAction();
+        } else {
+            String filePath = frmClient.getFileToSend();
+            client.sendFile(filePath);
+            frmClient.appearanceToSendMessage();
+        }
+    }
+
+    private void setEditableConnectionComponents(Boolean editable) {
+        txtUser.setEditable(editable);
+        txtServer.setEditable(editable);
+        txtServerPort.setEditable(editable);
+        btnClose.setEnabled(!editable);
+        btnConnect.setEnabled(editable);
+    }
+
+    private void initComponents() {
+        lsmChat = new DefaultListModel<>();
         lstChat = frmClient.getLstChat();
-        lstChat.setModel(listModel);
+        lstChat.setModel(lsmChat);
 
-        txtidClient = frmClient.getTxtIdClient();
-        btnConnect = frmClient.getBtnConnect();
-        btnClose = frmClient.getBtnClose();
-
-        btnConnect.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (txtidClient.getText().isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "User es required", "Warning", JOptionPane.WARNING_MESSAGE);
-                } else {
-                    client = new Client(listModel, txtidClient);
-                    btnClose.setEnabled(true);
-                    btnConnect.setEnabled(false);
-                }
-
-            }
-        });
-
-        btnClose.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                listModel.clear();
-                client.stop();
-
-                btnClose.setEnabled(false);
-                btnConnect.setEnabled(true);
-            }
-        });
-
+        txtUser = frmClient.getTxtUser();
+        txtServer = frmClient.getTxtServer();
+        txtServerPort = frmClient.getTxtServerPort();
         txtMessage = frmClient.getTxtMessage();
 
-        txtMessage.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String inputText = txtMessage.getText();
-                client.sendMessage(inputText);
-                inputText = "";
-                txtMessage.setText(inputText);
-
-            }
-        });
-
+        btnConnect = frmClient.getBtnConnect();
+        btnClose = frmClient.getBtnClose();
+        btnAttach = frmClient.getBtnAttach();
+        btnSend = frmClient.getBtnSend();
     }
 
     /**

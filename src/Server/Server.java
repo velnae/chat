@@ -76,19 +76,25 @@ public class Server implements Runnable {
     }
 
     public synchronized void handle(SocketAddress ID, String idClient, String input) {
-        if (input.equals("exit")) {
-            clients[findClient(ID)].send("exit");
-            remove(ID);
+        //remove client
+//        clients[findClient(ID)].send("exit");
+//            remove(ID);
+        String isFile = "message:type:file";
+        String messageToSend = idClient + " says : ";
+
+        if (input.contains(isFile)) {
+            messageToSend += "Envio archivo";
         } else {
-            String messageToSend = idClient + " says : " + input;
-            storedMessages.add(messageToSend);
-            for (int i = 0; i < clientCount; i++) {
-                if (clients[i].getID() == ID) {
-                    // if this client ID is the sender, just skip it
-                    continue;
-                }
-                clients[i].send(messageToSend);
+            messageToSend += input;
+        }
+
+        storedMessages.add(messageToSend);
+        for (int i = 0; i < clientCount; i++) {
+            if (clients[i].getID() == ID) {
+                // if this client ID is the sender, just skip it
+                continue;
             }
+            clients[i].send(messageToSend);
         }
     }
 

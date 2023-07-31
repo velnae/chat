@@ -3,8 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/home/emerson/NetBeansProjects/chat/src/Client/Ui/FrmClient.java</file>
             <file>file:/home/emerson/NetBeansProjects/chat/src/Server/ChatServerThread.java</file>
-            <file>file:/home/emerson/NetBeansProjects/chat/src/Server/Server.java</file>
+            <file>file:/home/emerson/NetBeansProjects/chat/src/Client/Client.java</file>
+            <file>file:/home/emerson/NetBeansProjects/chat/src/Client/MainClient.java</file>
         </group>
     </open-files>
 </project-private>

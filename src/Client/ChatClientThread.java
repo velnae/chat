@@ -10,12 +10,10 @@ public class ChatClientThread extends Thread {
     private Socket socket = null;
     private Client client = null;
     private DataInputStream dis = null;
-    private DefaultListModel listModel;
 
-    public ChatClientThread(Client _client, Socket _socket, DefaultListModel _listModel) {
+    public ChatClientThread(Client _client, Socket _socket) {
         client = _client;
         socket = _socket;
-        listModel = _listModel;
         open();
         start();
     }
