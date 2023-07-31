@@ -1,10 +1,15 @@
 package Server;
 
+import java.awt.List;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import javax.swing.DefaultListModel;
+import javax.swing.text.Element;
 
 // SERVER : Multi Server
 // TIPE : Two-Way Communication (Client to Server, Server to Client)
@@ -21,32 +26,35 @@ public class Server implements Runnable {
     private Thread thread = null;
     private ChatServerThread clients[] = new ChatServerThread[50];
     private int clientCount = 0;
-    private DefaultListModel listModel;
+    private DefaultListModel lsmLog;
+    private DefaultListModel lsmUsers;
+    private ArrayList<String> storedMessages = new ArrayList<>();
 
-    public Server(DefaultListModel listModel) {
-        this.listModel = listModel;
+    public Server(DefaultListModel lsmLog, DefaultListModel lsmUsers) {
+        this.lsmLog = lsmLog;
+        this.lsmUsers = lsmUsers;
 
         try {
             serverSocket = new ServerSocket(port);
 
-            listModel.addElement("Server started on port " + serverSocket.getLocalPort() + "...");
-            listModel.addElement("Waiting for client...");
+            lsmLog.addElement("Server started on port " + serverSocket.getLocalPort() + "...");
+            lsmLog.addElement("Waiting for client...");
             thread = new Thread(this);
             thread.start();
         } catch (IOException e) {
-            listModel.addElement("Can not bind to port : " + e);
+            lsmLog.addElement("Can not bind to port : " + e);
         }
-    }    
-    
-    
+    }
+
     @Override
     public void run() {
         while (thread != null) {
             try {
                 // wait until client socket connecting, then add new thread
-                addThreadClient(serverSocket.accept());
+                Socket socket = serverSocket.accept();
+                addThreadClient(socket);
             } catch (IOException e) {
-                listModel.addElement("Server accept error : " + e);
+                lsmLog.addElement("Server accept error : " + e);
                 stop();
             }
         }
@@ -72,12 +80,14 @@ public class Server implements Runnable {
             clients[findClient(ID)].send("exit");
             remove(ID);
         } else {
+            String messageToSend = idClient + " says : " + input;
+            storedMessages.add(messageToSend);
             for (int i = 0; i < clientCount; i++) {
                 if (clients[i].getID() == ID) {
                     // if this client ID is the sender, just skip it
                     continue;
                 }
-                clients[i].send("\n" + idClient + " says : " + input);
+                clients[i].send(messageToSend);
             }
         }
     }
@@ -85,8 +95,11 @@ public class Server implements Runnable {
     public synchronized void remove(SocketAddress ID) {
         int index = findClient(ID);
         if (index >= 0) {
+
             ChatServerThread threadToTerminate = clients[index];
-            listModel.addElement("Removing client thread " + ID + " at " + index);
+            lsmLog.addElement("Removing client thread " + ID + " at " + index);
+            lsmUsers.remove(index);
+
             if (index < clientCount - 1) {
                 for (int i = index + 1; i < clientCount; i++) {
                     clients[i - 1] = clients[i];
@@ -96,19 +109,27 @@ public class Server implements Runnable {
             try {
                 threadToTerminate.close();
             } catch (IOException e) {
-                listModel.addElement("Error closing thread : " + e.getMessage());
+                lsmLog.addElement("Error closing thread : " + e.getMessage());
             }
         }
     }
 
     private void addThreadClient(Socket socket) {
         if (clientCount < clients.length) {
-            clients[clientCount] = new ChatServerThread(this, socket, listModel);
+            clients[clientCount] = new ChatServerThread(this, socket, lsmLog);
             clients[clientCount].start();
             clientCount++;
         } else {
-            listModel.addElement("Client refused : maximum " + clients.length + " reached.");
+            lsmLog.addElement("Client refused : maximum " + clients.length + " reached.");
         }
+    }
+
+    public synchronized ArrayList<String> getStoredMessages() {
+        return new ArrayList<>(storedMessages); // Return a copy of the stored messages to avoid direct modification
+    }
+
+    public void addUser(String user) {
+        lsmUsers.addElement(user);
     }
 
     public static void main(String[] args) {

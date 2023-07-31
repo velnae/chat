@@ -1,8 +1,10 @@
 package Server;
 
+import java.awt.List;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
@@ -17,7 +19,7 @@ public class ChatServerThread extends Thread {
     private BufferedOutputStream bos = null;
     private DataOutputStream dos = null;
     private DefaultListModel listModel;
-    private String idClient = null;
+    private String user = null;
 
     public ChatServerThread(Server _server, Socket _socket, DefaultListModel _listModel) {
         super();
@@ -31,7 +33,13 @@ public class ChatServerThread extends Thread {
             dis = new DataInputStream(bis);
             bos = new BufferedOutputStream(socket.getOutputStream());
             dos = new DataOutputStream(bos);
-            idClient = dis.readUTF();
+            user = dis.readUTF();
+            server.addUser(user);
+            // Simulated array of messages
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            oos.writeObject(server.getStoredMessages());
+            oos.flush();
+
         } catch (IOException ex) {
             Logger.getLogger(ChatServerThread.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -57,7 +65,7 @@ public class ChatServerThread extends Thread {
             listModel.addElement("Client " + socket.getRemoteSocketAddress() + " connected to server...");
 
             while (true) {
-                server.handle(ID, idClient, dis.readUTF());
+                server.handle(ID, user, dis.readUTF());
             }
         } catch (IOException e) {
             //listModel.addElement("Client " + socket.getRemoteSocketAddress() + " error reading : " + e.getMessage());

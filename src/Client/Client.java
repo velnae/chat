@@ -1,9 +1,14 @@
 package Client;
 
+import java.awt.List;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JTextField;
 
@@ -19,11 +24,11 @@ public class Client {
     private ChatClientThread client = null;
     private DefaultListModel listModel;
     private JTextField txtidClient;
-    
+
     public Client(DefaultListModel listModel, JTextField txtidClient) {
         this.listModel = listModel;
         this.txtidClient = txtidClient;
-        
+
         try {
             socket = new Socket(serverName, serverPort);
             listModel.addElement("Client started on port " + socket.getLocalPort() + "...");
@@ -32,9 +37,19 @@ public class Client {
             dis = new DataInputStream(System.in);
             dos = new DataOutputStream(socket.getOutputStream());
             dos.writeUTF(this.txtidClient.getText());
+
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            ArrayList<String> messages = (ArrayList<String>) ois.readObject();
+            for (String message : messages) {
+                message = message.replaceAll(txtidClient.getText(), "me");
+                listModel.addElement(message);
+            }
+
             client = new ChatClientThread(this, socket, this.listModel);
         } catch (IOException e) {
             listModel.addElement("Error : " + e.getMessage());
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -57,7 +72,7 @@ public class Client {
             stop();
         }
     }
-    
+
     public void stop() {
         try {
             thread = null;

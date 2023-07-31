@@ -21,7 +21,10 @@ public class FrmServer extends javax.swing.JFrame {
     public JList<String> getLstLog() {
         return lstLog;
     }
-    
+
+    public JList<String> getLstUsers() {
+        return lstUsers;
+    }
      
     /**
      * This method is called from within the constructor to initialize the form.
@@ -40,7 +43,7 @@ public class FrmServer extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        lstLog1 = new javax.swing.JList<>();
+        lstUsers = new javax.swing.JList<>();
         jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -59,8 +62,8 @@ public class FrmServer extends javax.swing.JFrame {
 
         jLabel2.setText("Logs");
 
-        lstLog1.setName(""); // NOI18N
-        jScrollPane2.setViewportView(lstLog1);
+        lstUsers.setName(""); // NOI18N
+        jScrollPane2.setViewportView(lstUsers);
 
         jLabel3.setText("Users");
 
@@ -103,10 +106,11 @@ public class FrmServer extends javax.swing.JFrame {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton3)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButton1)
+                        .addComponent(jButton2)))
                 .addContainerGap())
         );
 
@@ -158,6 +162,6 @@ public class FrmServer extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JList<String> lstLog;
-    private javax.swing.JList<String> lstLog1;
+    private javax.swing.JList<String> lstUsers;
     // End of variables declaration//GEN-END:variables
 }

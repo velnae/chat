@@ -15,16 +15,25 @@ import javax.swing.JList;
 public class MainServer {
     
     private JList<String> lstLog;
-    private DefaultListModel<String> listModel;
+    private DefaultListModel<String> lsmLog;
+    private JList<String> lstUsers;
+    private DefaultListModel<String> lsmUsers;
     private FrmServer frmServer;
     private Server server;
 
     public MainServer(){
         frmServer = new FrmServer();
-        listModel = new DefaultListModel<>();
+        
+        lsmLog = new DefaultListModel<>();
+        lsmUsers = new DefaultListModel<>();
+        
         lstLog = frmServer.getLstLog();
-        lstLog.setModel(listModel);   
-        server = new Server(listModel);
+        lstUsers = frmServer.getLstUsers();
+        
+        lstLog.setModel(lsmLog);   
+        lstUsers.setModel(lsmUsers);  
+        
+        server = new Server(lsmLog, lsmUsers);
         
         frmServer.setVisible(true);
     }

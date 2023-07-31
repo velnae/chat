@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 /**
@@ -27,25 +28,42 @@ public class MainClient {
     private JTextField txtidClient;
 
     private JButton btnConnect;
+    private JButton btnClose;
 
     public MainClient() {
         frmClient = new FrmClient();
         frmClient.setVisible(true);
-        
-        
+
         listModel = new DefaultListModel<>();
         lstChat = frmClient.getLstChat();
         lstChat.setModel(listModel);
-        
+
         txtidClient = frmClient.getTxtIdClient();
-        
         btnConnect = frmClient.getBtnConnect();
+        btnClose = frmClient.getBtnClose();
+
         btnConnect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Aquí puedes manejar el evento cuando se presiona "Enter"
-                System.out.println("click");
-                client = new Client(listModel, txtidClient);
+                if (txtidClient.getText().isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "User es required", "Warning", JOptionPane.WARNING_MESSAGE);
+                } else {
+                    client = new Client(listModel, txtidClient);
+                    btnClose.setEnabled(true);
+                    btnConnect.setEnabled(false);
+                }
+
+            }
+        });
+
+        btnClose.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                listModel.clear();
+                client.stop();
+
+                btnClose.setEnabled(false);
+                btnConnect.setEnabled(true);
             }
         });
 
@@ -54,7 +72,6 @@ public class MainClient {
         txtMessage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Aquí puedes manejar el evento cuando se presiona "Enter"
                 String inputText = txtMessage.getText();
                 client.sendMessage(inputText);
                 inputText = "";
@@ -62,7 +79,6 @@ public class MainClient {
 
             }
         });
-
 
     }
 
