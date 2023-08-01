@@ -1,9 +1,7 @@
 package Server;
 
 import java.awt.List;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -73,7 +71,7 @@ public class Server implements Runnable {
         }
     }
 
-    private int findClient(SocketAddress ID) {
+    public int findClient(SocketAddress ID) {
         for (int i = 0; i < clientCount; i++) {
             if (clients[i].getID() == ID) {
                 return i;
@@ -82,27 +80,59 @@ public class Server implements Runnable {
         return -1;
     }
 
-    public synchronized void handle(SocketAddress ID, String idClient, String input) {
-        //remove client
-//        clients[findClient(ID)].send("exit");
-//            remove(ID);
-        String isFile = "message:type:file";
-        String messageToSend = idClient + " says : ";
+    public synchronized void handleText(SocketAddress ID, String user, String input) {
 
-        if (input.contains(isFile)) {
-            messageToSend += "Envio archivo";
-        } else {
-            messageToSend += input;
-        }
-
+        String messageToSend = user + " says : " + input;
         storedMessages.add(messageToSend);
+
         for (int i = 0; i < clientCount; i++) {
             if (clients[i].getID() == ID) {
                 // if this client ID is the sender, just skip it
                 continue;
             }
-            clients[i].send(messageToSend);
+            clients[i].sendText(messageToSend);
         }
+    }
+
+    public void handleFile(SocketAddress ID, String user, String input, Socket socket) throws IOException {
+
+        String[] dataFile = input.split(",");
+
+        String nameFile = dataFile[0];
+        int sizeFile = Integer.parseInt(dataFile[1]);
+
+//        String messageToSend = user + " sends a file : " + nameFile + " with size " + sizeFile;
+//        storedMessages.add(messageToSend);
+
+
+//        System.out.println("Getting file from server...");
+//        int FILE_SIZE = sizeFile;
+//        byte[] myByteArray = new byte[FILE_SIZE];
+//
+//        String projectPath = System.getProperty("user.dir");
+//        String imagePath = projectPath + "/gambarClient/" + nameFile;
+//
+//        InputStream inputStream = socket.getInputStream();
+//        int bytesRead = inputStream.read(myByteArray, 0, myByteArray.length);
+//        int current = bytesRead;
+////
+//        FileOutputStream fileOutputStream  = new FileOutputStream(imagePath);
+//        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+//        bufferedOutputStream.write(myByteArray, 0, bytesRead);
+//        bufferedOutputStream.flush();
+//
+//        System.out.println("Get file success...");
+
+        for (int i = 0; i < clientCount; i++) {
+            if (clients[i].getID() == ID) {
+                // if this client ID is the sender, just skip it
+                clients[i].sendFile(input, nameFile, sizeFile);
+                continue;
+            }
+//            clients[i].sendText(messageToSend);
+//            clients[i].sendFile(input, nameFile, sizeFile);
+        }
+
     }
 
     public synchronized void remove(SocketAddress ID) {

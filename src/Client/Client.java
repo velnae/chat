@@ -1,19 +1,13 @@
 package Client;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.OutputStream;
+import Client.Models.Message;
+
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultListModel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 // Client for Server4
 public class Client {
@@ -23,9 +17,12 @@ public class Client {
     private final DefaultListModel<String> lsmChat;
     private String user = null;
 
-    public Client(String user, String server, int serverPort, DefaultListModel<String> lsmChat) {
+    private JProgressBar proBarSendFile;
+
+    public Client(String user, String server, int serverPort, DefaultListModel<String> lsmChat, JProgressBar proBarSendFile) {
         this.lsmChat = lsmChat;
         this.user = user;
+        this.proBarSendFile = proBarSendFile;
 
         try {
             socket = new Socket(server, serverPort);
@@ -46,6 +43,7 @@ public class Client {
 
     private void identifyUser() throws IOException {
         dos.writeUTF(user);
+        dos.flush();
     }
 
     private void getFirstMessages() throws Exception {
@@ -63,14 +61,49 @@ public class Client {
         }
     }
 
-    public void handleMessage(String message) {
+    public void handleText(String message) {
         lsmChat.addElement(message);
+    }
+
+
+    public void handleFile(String input) throws IOException {
+        String[] fileInfo = input.split(",");
+        String fileName = fileInfo[0];
+        int fileSize = Integer.parseInt(fileInfo[1]);
+        lsmChat.addElement("File name: " + fileName + " size: " + fileSize);
+
+
+        System.out.println("Getting file from server...");
+        byte[] myByteArray = new byte[fileSize];
+
+        String projectPath = System.getProperty("user.dir");
+        String imagePath = projectPath + "/gambarClient/" + fileName;
+
+        InputStream inputStream = socket.getInputStream();
+        int bytesRead = inputStream.read(myByteArray, 0, myByteArray.length);
+        int current = bytesRead;
+//
+            do {
+                bytesRead = inputStream.read(myByteArray, current, (myByteArray.length - current));
+                if (bytesRead >= 0) {
+                    current += bytesRead;
+                }
+            } while (bytesRead > -1);
+
+        FileOutputStream fileOutputStream  = new FileOutputStream(imagePath);
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+        bufferedOutputStream.write(myByteArray, 0, current);
+        bufferedOutputStream.flush();
+
+        System.out.println("Get file success...");
     }
 
     public void sendMessage(String message) {
         try {
             lsmChat.addElement("me : " + message);
-            dos.writeUTF(message); // Enviar el mensaje al servidor
+            dos.writeUTF(Message.TYPE_TEXT);
+            dos.flush();
+            dos.writeUTF(message);
             dos.flush();
         } catch (IOException e) {
             System.out.println("Sending error: " + e.getMessage());
@@ -78,21 +111,37 @@ public class Client {
         }
     }
 
-    public void sendFile(String filePath) {
-        File myFile = new File(filePath);
-        byte[] myByteArray = new byte[(int) myFile.length()];
+    public void sendFile(File file) {
+        int fileSize = 8192;
+        byte[] myByteArray = new byte[(int) file.length()];
 
+        int in = 0;
         try {
-            dos.writeUTF("message:type:file");
-            FileInputStream fileInputStream = new FileInputStream(myFile);
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
-            bufferedInputStream.read(myByteArray, 0, myByteArray.length);
+            dos.writeUTF(Message.TYPE_FILE);
+            dos.flush();
+            dos.writeUTF(file.getName() + "," + myByteArray.length);
+            dos.flush();
+            Thread.sleep(2000);
+            FileInputStream fileInputStream = new FileInputStream(file);
+            BufferedInputStream bis = new BufferedInputStream(fileInputStream);
+//            bis.read(myByteArray, 0, myByteArray.length);
+            long totalBytesSent = 0;
+            BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+            while ((in = bis.read(myByteArray)) != -1)
+            {
+                bos.write(myByteArray,0,in);
+                totalBytesSent += in;
 
-            OutputStream outputStream = socket.getOutputStream();
-            outputStream.write(myByteArray, 0, myByteArray.length);
-            outputStream.flush();
-            System.out.println("Send file success...");
-        } catch (IOException ex) {
+                int progress = (int) ((totalBytesSent * 100) / fileSize);
+                proBarSendFile.setValue(progress);
+            }
+
+
+//            OutputStream outputStream = socket.getOutputStream();
+//            outputStream.write(myByteArray, 0, myByteArray.length);
+            bos.flush();
+            System.out.println("Send file success...  " + myByteArray.length);
+        } catch (Exception ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

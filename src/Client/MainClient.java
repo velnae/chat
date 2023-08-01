@@ -8,11 +8,8 @@ import Client.Ui.FrmClient;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
+import java.io.File;
+import javax.swing.*;
 
 /**
  * @author emerson
@@ -32,6 +29,8 @@ public class MainClient {
     private JButton btnClose;
     private JButton btnAttach;
     private JButton btnSend;
+
+    private JProgressBar proBarSendFile;
 
     public MainClient() {
         frmClient = new FrmClient();
@@ -76,7 +75,7 @@ public class MainClient {
         if (user.isEmpty() || server.isEmpty() || serverPort < 1) {
             JOptionPane.showMessageDialog(null, "User, server and port is required", "Warning", JOptionPane.WARNING_MESSAGE);
         } else {
-            client = new Client(user, server, serverPort, lsmChat);
+            client = new Client(user, server, serverPort, lsmChat, proBarSendFile);
             setEditableConnectionComponents(false);
         }
     }
@@ -101,8 +100,7 @@ public class MainClient {
         if (btnAttach.getText().equals(FrmClient.ATTACH)) {
             messageAction();
         } else {
-            String filePath = frmClient.getFileToSend();
-            client.sendFile(filePath);
+            client.sendFile(frmClient.getSelectedFile());
             frmClient.appearanceToSendMessage();
         }
     }
@@ -129,6 +127,10 @@ public class MainClient {
         btnClose = frmClient.getBtnClose();
         btnAttach = frmClient.getBtnAttach();
         btnSend = frmClient.getBtnSend();
+
+        proBarSendFile = frmClient.getProBarSendFile();
+        proBarSendFile.setStringPainted(true);
+        proBarSendFile.setValue(0);
     }
 
     /**

@@ -8,6 +8,7 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 
 /**
@@ -16,7 +17,8 @@ import javax.swing.JTextField;
  */
 public class FrmClient extends javax.swing.JFrame {
 
-    private String fileToSend;
+    private File selectedFile;
+
     public static final String ATTACH = "Attach";
 
     /**
@@ -49,6 +51,7 @@ public class FrmClient extends javax.swing.JFrame {
         txtServerPort = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         txtServer = new javax.swing.JTextField();
+        proBarSendFile = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -109,6 +112,9 @@ public class FrmClient extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnAttach, javax.swing.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(proBarSendFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -133,7 +139,9 @@ public class FrmClient extends javax.swing.JFrame {
                     .addComponent(txtMessage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnAttach)
                     .addComponent(btnSend))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(proBarSendFile, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -167,10 +175,6 @@ public class FrmClient extends javax.swing.JFrame {
         return btnSend;
     }
 
-    public String getFileToSend() {
-        return fileToSend;
-    }
-
     public JTextField getTxtServer() {
         return txtServer;
     }
@@ -179,6 +183,15 @@ public class FrmClient extends javax.swing.JFrame {
         return txtServerPort;
     }
 
+    public File getSelectedFile() {
+        return selectedFile;
+    }
+
+    public JProgressBar getProBarSendFile() {
+        return proBarSendFile;
+    }
+
+    
     
     public void showFileChooser() {
         JFileChooser fileChooser = new JFileChooser();
@@ -188,14 +201,13 @@ public class FrmClient extends javax.swing.JFrame {
 
         // Procesar el archivo seleccionado
         if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            appearanceToSendFile(selectedFile);
+            selectedFile = fileChooser.getSelectedFile();
+            appearanceToSendFile();
         }
     }
 
-    public void appearanceToSendFile(File file) {
-        fileToSend = file.getAbsolutePath();
-        btnAttach.setText(file.getName());
+    public void appearanceToSendFile() {
+        btnAttach.setText(selectedFile.getName());
         btnAttach.setEnabled(false);
     }
 
@@ -250,6 +262,7 @@ public class FrmClient extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JList<String> lstChat;
+    private javax.swing.JProgressBar proBarSendFile;
     private javax.swing.JTextField txtMessage;
     private javax.swing.JTextField txtServer;
     private javax.swing.JTextField txtServerPort;
