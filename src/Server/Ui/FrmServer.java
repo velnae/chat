@@ -4,6 +4,7 @@
  */
 package Server.Ui;
 
+import javax.swing.JButton;
 import javax.swing.JList;
 
 /**
@@ -25,6 +26,19 @@ public class FrmServer extends javax.swing.JFrame {
     public JList<String> getLstUsers() {
         return lstUsers;
     }
+
+    public JButton getBtnStart() {
+        return btnStart;
+    }
+
+    public JButton getBtnDisconnect() {
+        return btnDisconnect;
+    }
+
+    public JButton getBtnClear() {
+        return btnClear;
+    }
+    
      
     /**
      * This method is called from within the constructor to initialize the form.
@@ -38,9 +52,9 @@ public class FrmServer extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         lstLog = new javax.swing.JList<>();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btnStart = new javax.swing.JButton();
+        btnDisconnect = new javax.swing.JButton();
+        btnClear = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         lstUsers = new javax.swing.JList<>();
@@ -54,11 +68,11 @@ public class FrmServer extends javax.swing.JFrame {
         lstLog.setName(""); // NOI18N
         jScrollPane1.setViewportView(lstLog);
 
-        jButton1.setText("Connect");
+        btnStart.setText("Start");
 
-        jButton2.setText("Disconnect");
+        btnDisconnect.setText("Disconnect");
 
-        jButton3.setText("Clear");
+        btnClear.setText("Clear");
 
         jLabel2.setText("Logs");
 
@@ -75,9 +89,9 @@ public class FrmServer extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
+                        .addComponent(btnStart)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2))
+                        .addComponent(btnDisconnect))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 371, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1)
                     .addComponent(jLabel2))
@@ -89,7 +103,7 @@ public class FrmServer extends javax.swing.JFrame {
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 19, Short.MAX_VALUE)
-                        .addComponent(jButton3)))
+                        .addComponent(btnClear)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -107,10 +121,10 @@ public class FrmServer extends javax.swing.JFrame {
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton3)
+                    .addComponent(btnClear)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton1)
-                        .addComponent(jButton2)))
+                        .addComponent(btnStart)
+                        .addComponent(btnDisconnect)))
                 .addContainerGap())
         );
 
@@ -153,9 +167,9 @@ public class FrmServer extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
+    private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnDisconnect;
+    private javax.swing.JButton btnStart;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

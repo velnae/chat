@@ -19,10 +19,8 @@ import javax.swing.JTextField;
 public class Client {
     private Socket socket = null;
     private DataOutputStream dos = null;
-    private ObjectInputStream ois = null;
     private ChatClientThread client = null;
     private final DefaultListModel<String> lsmChat;
-
     private String user = null;
 
     public Client(String user, String server, int serverPort, DefaultListModel<String> lsmChat) {
@@ -32,7 +30,6 @@ public class Client {
         try {
             socket = new Socket(server, serverPort);
             dos = new DataOutputStream(socket.getOutputStream());
-            ois = new ObjectInputStream(socket.getInputStream());
 
             lsmChat.addElement("Client started on port " + socket.getLocalPort());
             lsmChat.addElement("Connected to server " + socket.getRemoteSocketAddress());
@@ -52,6 +49,7 @@ public class Client {
     }
 
     private void getFirstMessages() throws Exception {
+        ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
         Object receivedObject = ois.readObject();
 
         if (receivedObject instanceof ArrayList<?>) {
@@ -102,7 +100,6 @@ public class Client {
     public void stop() {
         try {
             dos.close();
-            ois.close();
             socket.close();
         } catch (IOException e) {
             lsmChat.addElement("Error closing : " + e.getMessage());

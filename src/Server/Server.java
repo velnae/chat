@@ -24,13 +24,13 @@ public class Server implements Runnable {
     private int port = 8081;
     private ServerSocket serverSocket = null;
     private Thread thread = null;
-    private ChatServerThread clients[] = new ChatServerThread[50];
+    private final ChatServerThread[] clients = new ChatServerThread[50];
     private int clientCount = 0;
-    private DefaultListModel lsmLog;
-    private DefaultListModel lsmUsers;
-    private ArrayList<String> storedMessages = new ArrayList<>();
+    private final DefaultListModel<String> lsmLog;
+    private final DefaultListModel<String> lsmUsers;
+    private final ArrayList<String> storedMessages = new ArrayList<>();
 
-    public Server(DefaultListModel lsmLog, DefaultListModel lsmUsers) {
+    public Server(DefaultListModel<String> lsmLog, DefaultListModel<String> lsmUsers) {
         this.lsmLog = lsmLog;
         this.lsmUsers = lsmUsers;
 
@@ -50,11 +50,10 @@ public class Server implements Runnable {
     public void run() {
         while (thread != null) {
             try {
-                // wait until client socket connecting, then add new thread
                 Socket socket = serverSocket.accept();
                 addThreadClient(socket);
             } catch (IOException e) {
-                lsmLog.addElement("Server accept error : " + e);
+                System.out.println("Server accept error : " + e.getMessage());
                 stop();
             }
         }
@@ -63,6 +62,14 @@ public class Server implements Runnable {
     public void stop() {
         if (thread != null) {
             thread = null;
+
+            try {
+                serverSocket.close();
+                lsmLog.addElement("Server stopped.");
+            } catch (IOException e) {
+                System.out.println("error when try to close server socket " + e.getMessage());
+            }
+
         }
     }
 
