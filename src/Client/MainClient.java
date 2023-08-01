@@ -92,6 +92,7 @@ public class MainClient {
     private void closeAction() {
         lsmChat.clear();
         client.stop();
+        proBarSendFile.setValue(0);
 
         setEditableConnectionComponents(true);
     }

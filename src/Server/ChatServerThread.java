@@ -6,6 +6,8 @@ import java.awt.List;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,40 +74,62 @@ public class ChatServerThread extends Thread {
         }
     }
 
-    public synchronized void sendFile(String input, String name, int size) {
+    public String getFile(String input, String name, int size) {
+        try {
+            System.out.println("Getting file from server...");
+            BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+
+            byte[] buffer = new byte[4098];
+            String projectPath = System.getProperty("user.dir");
+            String filePath = projectPath + "/fileServer/" + name;
+
+            bos = new BufferedOutputStream(Files.newOutputStream(Paths.get(filePath)));
+
+            FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+            BufferedOutputStream bos = new BufferedOutputStream(fileOutputStream);
+
+            int bytesRead;
+            while ((bytesRead = bis.read(buffer)) != -1) {
+                bos.write(buffer, 0, bytesRead);
+                bos.flush();
+            }
+
+            bos.flush();
+            System.out.println("Get file success...");
+            return filePath;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public void sendFile(String input, String filePath) {
+        File file = new File(filePath);
+        int fileSize = (int) file.length();
+        byte[] myByteArray = new byte[(int) 4098];
 
         try {
+            dos.writeUTF(Message.TYPE_FILE);
+            dos.flush();
+            dos.writeUTF(file.getName() + "," + fileSize);
+            dos.flush();
 
-            System.out.println("Getting file from server...");
-            int FILE_SIZE = 6022386;
-            byte[] myByteArray = new byte[FILE_SIZE];
+            Thread.sleep(2000);
 
-            String projectPath = System.getProperty("user.dir");
-            String imagePath = projectPath + "/gambarClient/" + name;
+            FileInputStream fileInputStream = new FileInputStream(file);
+            BufferedInputStream bis = new BufferedInputStream(fileInputStream);
+            long totalBytesSent = 0;
+            BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
 
-            InputStream inputStream = socket.getInputStream();
-            int bytesRead = inputStream.read(myByteArray, 0, myByteArray.length);
-            int current = bytesRead;
-//            do {
-//                bytesRead = inputStream.read(myByteArray, current, (myByteArray.length - current));
-//                if (bytesRead >= 0) {
-//                    current += bytesRead;
-//                }
-//            } while (bytesRead > -1);
+            int in;
+            while ((in = bis.read(myByteArray)) != -1) {
+                bos.write(myByteArray, 0, in);
+                totalBytesSent += in;
+            }
 
-            FileOutputStream fileOutputStream  = new FileOutputStream(imagePath);
-            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-            bufferedOutputStream.write(myByteArray, 0, bytesRead);
-            bufferedOutputStream.flush();
-
-            System.out.println("Get file success...");
-
-//            dos.writeUTF(Message.TYPE_FILE);
-//            dos.flush();
-//            dos.writeUTF(input);
-//            dos.flush();
-
-        } catch (IOException e) {
+            bos.flush();
+            bos.close();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -122,62 +146,21 @@ public class ChatServerThread extends Thread {
         try {
             lsmLog.addElement("Client " + socket.getRemoteSocketAddress() + " connected to server...");
 
-//            InputStream inputStream = socket.getInputStream();
-            BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
-
             while (true) {
 
                 String messageType = dis.readUTF();
-                String messageType2 = dis.readUTF();
+                switch (messageType) {
+                    case Message.TYPE_TEXT:
+                        server.handleText(ID, user, dis.readUTF());
+                        break;
 
-                System.out.println("Getting file from server...");
-                String[] dataFile = messageType2.split(",");
+                    case Message.TYPE_FILE:
+                        server.handleFile(ID, user, dis.readUTF());
+                        break;
 
-                String nameFile = dataFile[0];
-                int sizeFile = Integer.parseInt(dataFile[1]);
-
-                int FILE_SIZE = sizeFile;
-                byte[] myByteArray = new byte[FILE_SIZE];
-                String projectPath = System.getProperty("user.dir");
-                String imagePath = projectPath + "/gambarClient/" + nameFile;
-
-
-                Thread.sleep(2000);
-//                int bytesRead = inputStream.read(myByteArray, 0, myByteArray.length);
-                bos = new BufferedOutputStream(new FileOutputStream(imagePath));
-
-                int in;
-                while ((in = bis.read(myByteArray)) != -1){
-                    bos.write(myByteArray,0,in);
+                    default:
+                        break;
                 }
-//                bos.close();
-//                do {
-//                    bytesRead = inputStream.read(myByteArray, current, (myByteArray.length - current));
-//                    if (bytesRead >= 0) {
-//                        current += bytesRead;
-//                    }
-//                } while (bytesRead > -1);
-
-//                FileOutputStream fileOutputStream = new FileOutputStream(imagePath);
-//                BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-//                bufferedOutputStream.write(myByteArray, 0, current);
-                bos.flush();
-//
-                System.out.println("Get file success...");
-
-//                String messageType = dis.readUTF();
-//                switch (messageType) {
-//                    case Message.TYPE_TEXT:
-//                        server.handleText(ID, user, dis.readUTF());
-//                        break;
-//
-//                    case Message.TYPE_FILE:
-//                        server.handleFile(ID, user, dis.readUTF(), socket);
-//                        break;
-//
-//                    default:
-//                        break;
-//                }
             }
         } catch (Exception e) {
             System.out.println("Client " + socket.getRemoteSocketAddress() + " error reading : " + e.getMessage());

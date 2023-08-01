@@ -4,6 +4,8 @@ import Client.Models.Message;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,12 +18,16 @@ public class Client {
     private ChatClientThread client = null;
     private final DefaultListModel<String> lsmChat;
     private String user = null;
+    private String server = null;
+    private int serverPort = 0;
 
     private JProgressBar proBarSendFile;
 
     public Client(String user, String server, int serverPort, DefaultListModel<String> lsmChat, JProgressBar proBarSendFile) {
         this.lsmChat = lsmChat;
         this.user = user;
+        this.server = server;
+        this.serverPort = serverPort;
         this.proBarSendFile = proBarSendFile;
 
         try {
@@ -70,31 +76,32 @@ public class Client {
         String[] fileInfo = input.split(",");
         String fileName = fileInfo[0];
         int fileSize = Integer.parseInt(fileInfo[1]);
-        lsmChat.addElement("File name: " + fileName + " size: " + fileSize);
-
+        lsmChat.addElement("Server: received " + fileName + " size: " + fileSize);
 
         System.out.println("Getting file from server...");
-        byte[] myByteArray = new byte[fileSize];
 
+        BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+
+        byte[] buffer = new byte[4098];
         String projectPath = System.getProperty("user.dir");
-        String imagePath = projectPath + "/gambarClient/" + fileName;
+        String filePath = projectPath + "/fileClient/" + fileName;
 
-        InputStream inputStream = socket.getInputStream();
-        int bytesRead = inputStream.read(myByteArray, 0, myByteArray.length);
-        int current = bytesRead;
-//
-            do {
-                bytesRead = inputStream.read(myByteArray, current, (myByteArray.length - current));
-                if (bytesRead >= 0) {
-                    current += bytesRead;
-                }
-            } while (bytesRead > -1);
+        FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+        BufferedOutputStream bos = new BufferedOutputStream(fileOutputStream);
+        long totalBytesSent = 0;
+        int bytesRead;
 
-        FileOutputStream fileOutputStream  = new FileOutputStream(imagePath);
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-        bufferedOutputStream.write(myByteArray, 0, current);
-        bufferedOutputStream.flush();
+        while ((bytesRead = bis.read(buffer)) != -1) {
+            bos.write(buffer, 0, bytesRead);
+            bos.flush();
 
+            totalBytesSent += bytesRead;
+
+            int progress = (int) ((totalBytesSent * 100) / fileSize);
+            proBarSendFile.setValue(progress);
+        }
+
+        bos.flush();
         System.out.println("Get file success...");
     }
 
@@ -112,21 +119,24 @@ public class Client {
     }
 
     public void sendFile(File file) {
-        int fileSize = 8192;
-        byte[] myByteArray = new byte[(int) file.length()];
+        int fileSize = (int) file.length();
+        byte[] myByteArray = new byte[(int) 4098];
+        lsmChat.addElement("Server:  sended file" + file.getName() + " size: " + fileSize);
 
         int in = 0;
         try {
             dos.writeUTF(Message.TYPE_FILE);
             dos.flush();
-            dos.writeUTF(file.getName() + "," + myByteArray.length);
+            dos.writeUTF(file.getName() + "," + fileSize);
             dos.flush();
+
             Thread.sleep(2000);
+
             FileInputStream fileInputStream = new FileInputStream(file);
             BufferedInputStream bis = new BufferedInputStream(fileInputStream);
-//            bis.read(myByteArray, 0, myByteArray.length);
             long totalBytesSent = 0;
             BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+
             while ((in = bis.read(myByteArray)) != -1)
             {
                 bos.write(myByteArray,0,in);
@@ -136,10 +146,8 @@ public class Client {
                 proBarSendFile.setValue(progress);
             }
 
-
-//            OutputStream outputStream = socket.getOutputStream();
-//            outputStream.write(myByteArray, 0, myByteArray.length);
             bos.flush();
+            bos.close();
             System.out.println("Send file success...  " + myByteArray.length);
         } catch (Exception ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);

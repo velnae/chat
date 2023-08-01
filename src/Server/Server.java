@@ -94,43 +94,22 @@ public class Server implements Runnable {
         }
     }
 
-    public void handleFile(SocketAddress ID, String user, String input, Socket socket) throws IOException {
+    public void handleFile(SocketAddress ID, String user, String input) throws IOException {
 
         String[] dataFile = input.split(",");
 
         String nameFile = dataFile[0];
         int sizeFile = Integer.parseInt(dataFile[1]);
 
-//        String messageToSend = user + " sends a file : " + nameFile + " with size " + sizeFile;
-//        storedMessages.add(messageToSend);
+        int index = findClient(ID);
 
-
-//        System.out.println("Getting file from server...");
-//        int FILE_SIZE = sizeFile;
-//        byte[] myByteArray = new byte[FILE_SIZE];
-//
-//        String projectPath = System.getProperty("user.dir");
-//        String imagePath = projectPath + "/gambarClient/" + nameFile;
-//
-//        InputStream inputStream = socket.getInputStream();
-//        int bytesRead = inputStream.read(myByteArray, 0, myByteArray.length);
-//        int current = bytesRead;
-////
-//        FileOutputStream fileOutputStream  = new FileOutputStream(imagePath);
-//        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
-//        bufferedOutputStream.write(myByteArray, 0, bytesRead);
-//        bufferedOutputStream.flush();
-//
-//        System.out.println("Get file success...");
+        String file = clients[index].getFile(input, nameFile, sizeFile);
 
         for (int i = 0; i < clientCount; i++) {
             if (clients[i].getID() == ID) {
-                // if this client ID is the sender, just skip it
-                clients[i].sendFile(input, nameFile, sizeFile);
                 continue;
             }
-//            clients[i].sendText(messageToSend);
-//            clients[i].sendFile(input, nameFile, sizeFile);
+            clients[i].sendFile(input, file);
         }
 
     }
